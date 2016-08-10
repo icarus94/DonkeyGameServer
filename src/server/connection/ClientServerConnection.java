@@ -1,11 +1,14 @@
 package server.connection;
 
 import java.io.BufferedReader;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
+import server.*;
+import server.game.ServerControl;
 
 public class ClientServerConnection implements Runnable {
 	
@@ -13,6 +16,7 @@ public class ClientServerConnection implements Runnable {
 	private BufferedReader inputClient;
 	private PrintStream outputClient;
 	private ObjectOutputStream objectClientOutput;
+	
 	
 	public ClientServerConnection(Socket conn) {
 		this.socketForConnection=conn;
@@ -30,7 +34,8 @@ public class ClientServerConnection implements Runnable {
 				
 				switch(inputClient.readLine()){
 					case "refreash": continue;
-					case "connectgame": break;
+					case "quickgame": new Thread(new ServerControl(socketForConnection)) ;
+					case "newGameRoom": new Thread(new ServerControl(socketForConnection));
 				}
 			}
 		} catch (IOException e) {
