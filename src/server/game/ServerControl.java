@@ -7,8 +7,9 @@ import server.*;
 
 public class ServerControl implements Runnable{
 	
-	private static LinkedList<ServerGameRoom> listOfGameRooms = new LinkedList<ServerGameRoom>();
+	public static LinkedList<ServerGameRoom> listOfGameRooms = new LinkedList<ServerGameRoom>();
 	private Socket socketForConnection;
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
@@ -17,6 +18,12 @@ public class ServerControl implements Runnable{
 	public ServerControl(Socket conn){
 		this.socketForConnection=conn;
 	}
+	
+	public ServerControl(Socket conn,String nameOfNewGameRoom,String type){
+		this.socketForConnection = conn;
+		//Create new game room useing parameter for name
+	}
+	
 	
 	
 	

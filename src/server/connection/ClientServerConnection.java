@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.LinkedList;
+
 import server.*;
 import server.game.ServerControl;
 
@@ -27,15 +29,16 @@ public class ClientServerConnection implements Runnable {
 		try {
 			
 			inputClient = new BufferedReader(new InputStreamReader(socketForConnection.getInputStream()));
-			outputClient = new PrintStream(socketForConnection.getOutputStream());
-			//objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
-			outputClient.println("cao");
+			//outputClient = new PrintStream(socketForConnection.getOutputStream());
+			objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
+			//outputClient.println("cao");
 			while(true){
-				
+				objectClientOutput.writeObject(new LinkedList<DGame>(ServerControl.listOfGameRooms));
 				switch(inputClient.readLine()){
 					case "refreash": continue;
 					case "quickgame": new Thread(new ServerControl(socketForConnection)) ;
-					case "newGameRoom": new Thread(new ServerControl(socketForConnection));
+					case "newGameRoom": new Thread(new ServerControl(socketForConnection,inputClient.readLine(),"new"));
+					case "connectToGameRoom":new Thread(new ServerControl(socketForConnection,inputClient.readLine(),"existing"));
 				}
 			}
 		} catch (IOException e) {
