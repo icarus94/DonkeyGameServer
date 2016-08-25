@@ -7,7 +7,7 @@ import server.*;
 
 public class ServerControl implements Runnable{
 	
-	public static LinkedList<ServerGameRoom> listOfGameRooms = new LinkedList<ServerGameRoom>();
+	public static volatile LinkedList<ServerGameRoom> listOfGameRooms = new LinkedList<ServerGameRoom>();
 	private Socket socketForConnection;
 	
 	@Override
@@ -15,13 +15,25 @@ public class ServerControl implements Runnable{
 		// TODO Auto-generated method stub
 		
 	}
-	public ServerControl(Socket conn){
+	public ServerControl(Socket conn, Player player){//for quickgame
 		this.socketForConnection=conn;
+		for (int i = 0; i <listOfGameRooms.size(); i++) {
+			if(listOfGameRooms.get(i).getListOfPlayers().size() == 3){
+				listOfGameRooms.get(i).getListOfPlayers().addLast(null);//mora da ubaci igraca
+			}
+		}
 	}
 	
-	public ServerControl(Socket conn,String nameOfNewGameRoom,String type){
+	public ServerControl(Socket conn,String nameOfNewGameRoom,String gamePassword,String numberOfBots,Player player){//for newGame
 		this.socketForConnection = conn;
-		//Create new game room useing parameter for name
+		
+		listOfGameRooms.addFirst(new ServerGameRoom(nameOfNewGameRoom));
+		new Thread(listOfGameRooms.getFirst()).start();
+	}
+	
+	public ServerControl(Socket conn,String nameOfNewGameRoom,String gamePassword,Player player){
+		this.socketForConnection = conn;
+		
 	}
 	
 	

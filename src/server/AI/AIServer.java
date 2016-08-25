@@ -16,10 +16,12 @@ public class AIServer implements Runnable {
 		
 		while(!areCardsDown){
 			if(cardHandRobot.size() == 5){
-				
+				whichCardToForward();
+			}
+			if(checkPossessionOfTwoOfClubs()){
+				areCardsDown = true;
 			}
 		}
-		
 	}
 	private boolean checkPossessionOfTwoOfClubs(){
 		if(cardHandRobot.contains(Card.TWO_OF_CLUBS)){
@@ -31,7 +33,7 @@ public class AIServer implements Runnable {
 	}
 	private Card whichCardToForward(){
 		Card forwardingCard = null;
-		int cardCounter = 0; 
+		int cardCounter = -1; 
 		int startingPoint = 0;
 		if(playCounter%3 == 0 && playCounter > 1){
 			for (int i = 0; i < cardHandRobot.size(); i++) {
@@ -46,15 +48,23 @@ public class AIServer implements Runnable {
 		forwardingCard = cardHandRobot.get(startingPoint);
 		if(cardHandRobot.get(startingPoint).getCardNumber() == 2)
 			forwardingCard = cardHandRobot.get(++startingPoint);
-		
-		for (int i = startingPoint+1; i < cardHandRobot.size(); i++) {
+		mainLoop:
+		for (int i = startingPoint; i < cardHandRobot.size(); i++) {
+			int innerCounter = 0;
 			if(cardHandRobot.get(i).getCardNumber() == 2)
 				continue;
-			if(forwardingCard.getCardNumber() == cardHandRobot.get(i).getCardNumber()){
-				cardCounter++;
+			for (int z = i; z >=0 ; z--) {
+				if(cardHandRobot.get(i).getCardNumber() == cardHandRobot.get(z).getCardNumber()){
+					continue mainLoop;
+				}
 			}
-			for (int j = 0; j < cardHandRobot.size(); j++) {
-				
+			for (int j = i+1; j < cardHandRobot.size(); j++) {
+				if(cardHandRobot.get(i).getCardNumber() == cardHandRobot.get(j).getCardNumber()){
+					innerCounter++;
+				}
+			}
+			if(innerCounter<cardCounter || cardCounter == -1){
+				forwardingCard = cardHandRobot.get(i);
 			}
 		}	
 		return forwardingCard;

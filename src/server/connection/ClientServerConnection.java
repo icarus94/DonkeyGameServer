@@ -32,20 +32,63 @@ public class ClientServerConnection implements Runnable {
 			//outputClient = new PrintStream(socketForConnection.getOutputStream());
 			objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
 			//outputClient.println("cao");
+			
 			while(true){
 				objectClientOutput.writeObject(new LinkedList<DGame>(ServerControl.listOfGameRooms));
-				switch(inputClient.readLine()){
-					case "refreash": continue;
-					case "quickgame": new Thread(new ServerControl(socketForConnection)) ;
-					case "newGameRoom": new Thread(new ServerControl(socketForConnection,inputClient.readLine(),"new"));
-					case "connectToGameRoom":new Thread(new ServerControl(socketForConnection,inputClient.readLine(),"existing"));
+				String inputStringFromClient = null;
+				while(inputStringFromClient == null){
+					 inputStringFromClient = inputClient.readLine();
+				}
+				String playerName = null,serverName = null,serverPassword = null,numberOfBots = null;
+				mainLoop:
+				switch(inputStringFromClient){
+					case "refresh": continue;
+					case "quickgame": {
+						while(playerName == null){
+							playerName = inputClient.readLine();
+						}
+						new Thread(new ServerControl(socketForConnection,new Player(playerName))).start(); 
+					}
+					case "newGameRoom": {
+						while(playerName == null){
+							playerName = inputClient.readLine();
+						}
+						while(serverName == null){
+							serverName = inputClient.readLine();
+						}
+						for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
+							if(ServerControl.listOfGameRooms.get(i).getName() == serverName){
+								objectClientOutput.writeObject("serverNameUsed");
+								break mainLoop;
+							}
+						}
+						while(serverPassword == null){
+							serverPassword = inputClient.readLine();
+						}
+						while(numberOfBots == null){
+							numberOfBots = inputClient.readLine();
+						}
+						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,numberOfBots,new Player(playerName))).start();
+					} 
+					case "connectToGameRoom":{
+						while(playerName == null){
+							playerName = inputClient.readLine();
+						}
+						while(serverName == null){
+							serverName = inputClient.readLine();
+						}
+						while(serverPassword == null){
+							serverPassword = inputClient.readLine();
+						}
+						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,new Player(playerName))).start();
+					}
 				}
 			}
 		} catch (IOException e) {
 			System.out.println("Connection with client is lost!");
 		}
 		
-	}
+	} 
 	
 	
 
