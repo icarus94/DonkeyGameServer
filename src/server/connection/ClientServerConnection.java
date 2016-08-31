@@ -34,7 +34,7 @@ public class ClientServerConnection implements Runnable {
 			//outputClient.println("cao");
 			
 			while(true){
-				objectClientOutput.writeObject(new LinkedList<DGame>(ServerControl.listOfGameRooms));
+				objectClientOutput.writeObject(ServerControl.listOfGameRoomsTypeDGame());
 				String inputStringFromClient = null;
 				while(inputStringFromClient == null){
 					 inputStringFromClient = inputClient.readLine();

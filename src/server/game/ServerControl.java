@@ -19,7 +19,7 @@ public class ServerControl implements Runnable{
 		this.socketForConnection=conn;
 		for (int i = 0; i <listOfGameRooms.size(); i++) {
 			if(listOfGameRooms.get(i).getListOfPlayers().size() == 3){
-				listOfGameRooms.get(i).getListOfPlayers().addLast(null);//mora da ubaci igraca
+				listOfGameRooms.get(i).getListOfPlayers().addLast((GamePlayer) player);//mora da ubaci igraca
 			}
 		}
 	}
@@ -27,7 +27,7 @@ public class ServerControl implements Runnable{
 	public ServerControl(Socket conn,String nameOfNewGameRoom,String gamePassword,String numberOfBots,Player player){//for newGame
 		this.socketForConnection = conn;
 		
-		listOfGameRooms.addFirst(new ServerGameRoom(nameOfNewGameRoom));
+		listOfGameRooms.addFirst(new ServerGameRoom(nameOfNewGameRoom,gamePassword,numberOfBots,player));
 		new Thread(listOfGameRooms.getFirst()).start();
 	}
 	
@@ -36,6 +36,13 @@ public class ServerControl implements Runnable{
 		
 	}
 	
+	public static LinkedList<DGame> listOfGameRoomsTypeDGame(){
+		LinkedList<DGame> listOfRoomsTypeDgame = new LinkedList<>();
+		for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
+			listOfRoomsTypeDgame.add(new DGame(ServerControl.listOfGameRooms.get(i).getPassword(), ServerControl.listOfGameRooms.get(i).getName()));
+		}
+		return listOfRoomsTypeDgame;
+	}
 	
 	
 	

@@ -1,4 +1,4 @@
-package server.AI;
+ package server.AI;
 
 import java.util.LinkedList;
 
@@ -18,7 +18,7 @@ public class AIServer implements Runnable {
 			if(cardHandRobot.size() == 5){
 				whichCardToForward();
 			}
-			if(checkPossessionOfTwoOfClubs()){
+			if(!(checkPossessionOfTwoOfClubs()) && isThereARowOfSameCards()){
 				areCardsDown = true;
 			}
 		}
@@ -94,5 +94,13 @@ public class AIServer implements Runnable {
 	public void triggerWhenCardsAreDown(){
 		this.areCardsDown=true;
 	}
+	public void addCard(Card card){
+		if(cardHandRobot.size()==4)
+			this.cardHandRobot.add(card);
+	}
 
+	public void addCards(LinkedList<Card> cardHand){
+		if(cardHand.size()<=5)
+			this.cardHandRobot = cardHand;
+	} 
 }
