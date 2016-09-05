@@ -42,12 +42,13 @@ public class ClientServerConnection implements Runnable {
 				String playerName = null,serverName = null,serverPassword = null,numberOfBots = null;
 				mainLoop:
 				switch(inputStringFromClient){
-					case "refresh": continue;
+					case "refresh": break;
 					case "quickgame": {
 						while(playerName == null){
 							playerName = inputClient.readLine();
 						}
-						new Thread(new ServerControl(socketForConnection,new Player(playerName))).start(); 
+						new Thread(new ServerControl(socketForConnection,new Player(playerName))).start();
+						break;
 					}
 					case "newGameRoom": {
 						while(playerName == null){
@@ -62,6 +63,7 @@ public class ClientServerConnection implements Runnable {
 								break mainLoop;
 							}
 						}
+						
 						while(serverPassword == null){
 							serverPassword = inputClient.readLine();
 						}
@@ -69,6 +71,7 @@ public class ClientServerConnection implements Runnable {
 							numberOfBots = inputClient.readLine();
 						}
 						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,numberOfBots,new Player(playerName))).start();
+						break;
 					} 
 					case "connectToGameRoom":{
 						while(playerName == null){
@@ -81,6 +84,7 @@ public class ClientServerConnection implements Runnable {
 							serverPassword = inputClient.readLine();
 						}
 						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,new Player(playerName))).start();
+						break;
 					}
 				}
 			}

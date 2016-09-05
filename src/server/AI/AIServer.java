@@ -17,6 +17,7 @@ public class AIServer implements Runnable {
 		while(!areCardsDown){
 			if(cardHandRobot.size() == 5){
 				whichCardToForward();
+				playCounter++;
 			}
 			if(!(checkPossessionOfTwoOfClubs()) && isThereARowOfSameCards()){
 				areCardsDown = true;
