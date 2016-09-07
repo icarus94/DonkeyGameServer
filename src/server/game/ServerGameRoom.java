@@ -5,23 +5,32 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.LinkedList;
 
+import server.Card;
 import server.DGame;
 import server.Player;
 
 public class ServerGameRoom extends DGame implements Runnable{
-	private LinkedList<GamePlayer> listOfPlayers = new LinkedList<>();
+	private volatile LinkedList<Player> listOfPlayers = new LinkedList<>();
+	int roundCounter = 0;
 	
 	ObjectOutputStream objectClientOutput;
 
-	public LinkedList<GamePlayer> getListOfPlayers() {
+	public LinkedList<Player> getListOfPlayers() {
 		return listOfPlayers;
 	}
 
-	public void setListOfPlayers(LinkedList<GamePlayer> listOfPlayers) {
+	public void setListOfPlayers(LinkedList<Player> listOfPlayers) {
 		this.listOfPlayers = listOfPlayers;
 	}
-	public ServerGameRoom(String nameOfServer,String gamePassword,String numberOfBots,Player player){
-		super(nameOfServer,gamePassword); 
+	public ServerGameRoom(String nameOfServer,String gamePassword,int numberOfBots,Player player){
+		super(gamePassword,nameOfServer);
+		this.listOfPlayers.addLast(player);
+		if(numberOfBots <= 3){
+			for (int i = 1; i <= numberOfBots; i++) {
+				this.listOfPlayers.addLast(new Player("Robot"+i));
+				this.listOfPlayers.getLast().setItARobot(true);
+			}
+		}
 	}
 	
 	@Override
@@ -31,15 +40,16 @@ public class ServerGameRoom extends DGame implements Runnable{
 				if(listOfPlayers.get(i).isItARobot()){
 					continue;
 				}
-				try {
-					objectClientOutput = new ObjectOutputStream(
-							listOfPlayers.get(i).getSocketForConnection().getOutputStream());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					System.out.println(
-							"Izgubljena konekcija u sobi sa igracem "+listOfPlayers.get(i).getPlayerName());
-					listOfPlayers.remove(listOfPlayers.get(i));
-				}
+				
+			}
+		}
+		while(true){
+			LinkedList<Card> cardDeck = Card.shuffledCardDeck();
+			for (int i = 0+(roundCounter%4); i < listOfPlayers.size(); i++) {
+				// nlistOfPlayers.get(i).setPlayerHandCards();
+			}
+			for (int i = 0; i < (roundCounter%4); i++) {
+				
 			}
 		}
 		

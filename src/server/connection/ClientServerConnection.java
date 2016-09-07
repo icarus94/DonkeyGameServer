@@ -16,25 +16,35 @@ public class ClientServerConnection implements Runnable {
 	
 	private Socket socketForConnection;
 	private BufferedReader inputClient;
-	private PrintStream outputClient;
 	private ObjectOutputStream objectClientOutput;
 	
-	
+	/**
+	 * Can be used for thread ID
+	 * @return
+	 */
+	public Socket getSocketForConnection() {
+		return socketForConnection;
+	}
+	/**
+	 * Constructor
+	 * @param conn
+	 */
 	public ClientServerConnection(Socket conn) {
 		this.socketForConnection=conn;
 	}
 	
-	@Override
+	/**
+	 * For communication with MenuWindow in Client
+	 */
 	public void run() {
 		try {
 			
 			inputClient = new BufferedReader(new InputStreamReader(socketForConnection.getInputStream()));
-			//outputClient = new PrintStream(socketForConnection.getOutputStream());
 			objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
-			//outputClient.println("cao");
 			
 			while(true){
-				objectClientOutput.writeObject(ServerControl.listOfGameRoomsTypeDGame());
+				objectClientOutput.writeObject(ServerControl.listOfGameRoomsTypeDGame());//sending list of GameRooms instanceof DGame
+				
 				String inputStringFromClient = null;
 				while(inputStringFromClient == null){
 					 inputStringFromClient = inputClient.readLine();
@@ -59,18 +69,18 @@ public class ClientServerConnection implements Runnable {
 						}
 						for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
 							if(ServerControl.listOfGameRooms.get(i).getName() == serverName){
-								objectClientOutput.writeObject("serverNameUsed");
+								objectClientOutput.writeObject(new String("serverNameUsed")); // Needs to be implemented on client side
 								break mainLoop;
 							}
 						}
-						
 						while(serverPassword == null){
 							serverPassword = inputClient.readLine();
 						}
 						while(numberOfBots == null){
 							numberOfBots = inputClient.readLine();
 						}
-						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,numberOfBots,new Player(playerName))).start();
+						int numberOfBotsTypeInt = Integer.parseInt(numberOfBots); //Parsing to INT
+						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,numberOfBotsTypeInt,new Player(playerName))).start();
 						break;
 					} 
 					case "connectToGameRoom":{

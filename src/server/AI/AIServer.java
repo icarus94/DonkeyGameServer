@@ -3,6 +3,7 @@
 import java.util.LinkedList;
 
 import server.Card;
+import server.Player;
 
 public class AIServer implements Runnable {
 	
@@ -10,6 +11,7 @@ public class AIServer implements Runnable {
 	private volatile boolean possessionOfTwoOfClubs = false;
 	private int playCounter = 0;
 	private volatile boolean areCardsDown = false;
+	private Player targetPlayer;
 
 	@Override
 	public void run() {
