@@ -24,7 +24,7 @@ public class ServerControl implements Runnable{
 	public void run() {
 		for (int i = 0; i < ServerStartup.clientConnectionList.size(); i++) {
 			if(ServerStartup.clientConnectionList.get(i).getSocketForConnection().equals(socketForConnection)){
-				//PITAJ DA LI SE OVAKO POREDI ILI SA ==
+				//treba ti posle za id konekcije da gasis predhodni thread
 			}
 		}
 		
@@ -43,7 +43,7 @@ public class ServerControl implements Runnable{
 					}
 				 }
 				 if(inputStringFromClient.equals("quitGameRoom")){//Needs to be implemented on clientSide
-					 
+					 throw new IOException();
 				 }
 				 //if(convertStringToCard(inputStringFromClient) != null){}
 				 
@@ -63,22 +63,22 @@ public class ServerControl implements Runnable{
 		this.socketForConnection=conn;
 		for (int i = 0; i <listOfGameRooms.size(); i++) {
 			if(listOfGameRooms.get(i).getListOfPlayers().size() == 3){
-				listOfGameRooms.get(i).getListOfPlayers().addLast((GamePlayer) player);//mora da ubaci igraca
+				listOfGameRooms.get(i).getListOfPlayers().addLast(player);//mora da ubaci igraca
 			}
 		}
 		for (int i = 0; i <listOfGameRooms.size(); i++) {
 			if(listOfGameRooms.get(i).getListOfPlayers().size() == 2){
-				listOfGameRooms.get(i).getListOfPlayers().addLast((GamePlayer) player);//mora da ubaci igraca
+				listOfGameRooms.get(i).getListOfPlayers().addLast(player);//mora da ubaci igraca
 			}
 		}
 		for (int i = 0; i <listOfGameRooms.size(); i++) {
 			if(listOfGameRooms.get(i).getListOfPlayers().size() == 1){
-				listOfGameRooms.get(i).getListOfPlayers().addLast((GamePlayer) player);//mora da ubaci igraca
+				listOfGameRooms.get(i).getListOfPlayers().addLast(player);//mora da ubaci igraca
 			}
 		}
 		String nameOfNewGameRoom = "RandomGeneratedRoom";
 		int counter = 1;
-		while(true){
+		while(true){//adds number To RandomGeneratedRoom for unique name
 			boolean exists = false;
 			for (int i = 0; i < listOfGameRooms.size(); i++) {
 				if(listOfGameRooms.get(i).getName().equals(nameOfNewGameRoom)){
@@ -91,7 +91,7 @@ public class ServerControl implements Runnable{
 				listOfGameRooms.addFirst(sgr);
 				new Thread(sgr).start(); //PITAJ SOSKETA ZA OVO !!!!!!!!! da li u linkedLIST ostaje pokazivac na pokrenutu instancu
 			}
-			nameOfNewGameRoom = nameOfNewGameRoom+counter;
+			nameOfNewGameRoom = "RandomGeneratedRoom"+counter;
 			counter++;
 		}	
 	}

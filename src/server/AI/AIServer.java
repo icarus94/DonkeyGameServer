@@ -5,18 +5,18 @@ import java.util.LinkedList;
 import server.Card;
 import server.Player;
 
-public class AIServer implements Runnable {
+public class AIServer extends Player implements Runnable {
 	
 	private volatile LinkedList<Card> cardHandRobot;
 	private volatile boolean possessionOfTwoOfClubs = false;
 	private int playCounter = 0;
 	private volatile boolean areCardsDown = false;
-	private Player targetPlayer;
 
 	@Override
 	public void run() {
 		
 		while(!areCardsDown){
+			this.transferPlayerHandCardsToCardHandRobot();
 			if(cardHandRobot.size() == 5){
 				whichCardToForward();
 				playCounter++;
@@ -105,5 +105,13 @@ public class AIServer implements Runnable {
 	public void addCards(LinkedList<Card> cardHand){
 		if(cardHand.size()<=5)
 			this.cardHandRobot = cardHand;
-	} 
+	}
+	
+	public void transferPlayerHandCardsToCardHandRobot(){
+		cardHandRobot.clear();
+		Card[] playerHandCard = this.getPlayerHandCards();
+		for (int i = 0; i < playerHandCard.length; i++) {
+			this.cardHandRobot.addLast(playerHandCard[i]);
+		}
+	}
 }

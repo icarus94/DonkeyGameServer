@@ -57,7 +57,7 @@ public class ClientServerConnection implements Runnable {
 						while(playerName == null){
 							playerName = inputClient.readLine();
 						}
-						new Thread(new ServerControl(socketForConnection,new Player(playerName))).start();
+						new Thread(new ServerControl(socketForConnection,new Player(playerName, this.socketForConnection))).start();
 						break;
 					}
 					case "newGameRoom": {
@@ -80,7 +80,8 @@ public class ClientServerConnection implements Runnable {
 							numberOfBots = inputClient.readLine();
 						}
 						int numberOfBotsTypeInt = Integer.parseInt(numberOfBots); //Parsing to INT
-						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,numberOfBotsTypeInt,new Player(playerName))).start();
+						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,numberOfBotsTypeInt,
+								new Player(playerName, this.socketForConnection))).start();
 						break;
 					} 
 					case "connectToGameRoom":{
@@ -93,7 +94,8 @@ public class ClientServerConnection implements Runnable {
 						while(serverPassword == null){
 							serverPassword = inputClient.readLine();
 						}
-						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,new Player(playerName))).start();
+						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,
+								new Player(playerName, this.socketForConnection))).start();
 						break;
 					}
 				}

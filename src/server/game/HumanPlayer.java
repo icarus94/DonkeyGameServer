@@ -6,10 +6,11 @@ import java.net.Socket;
 
 import server.Player;
 
-public class GamePlayer extends Player implements Runnable {
+public class HumanPlayer extends Player implements Runnable {
 	
 	private Socket socketForConnection;
 	private ObjectOutputStream objectClientOutput;
+	private ServerGameRoom pointerToGameRoom;
 
 	public Socket getSocketForConnection() {
 		return socketForConnection;
@@ -19,9 +20,10 @@ public class GamePlayer extends Player implements Runnable {
 		this.socketForConnection = socketForConnection;
 	}
 
-	public GamePlayer(String playerName, Socket socketForConnection) {
-		super(playerName);
+	public HumanPlayer(String playerName, Socket socketForConnection,ServerGameRoom pointerToGameRoom) {
+		super(playerName,socketForConnection);
 		this.socketForConnection = socketForConnection;
+		this.pointerToGameRoom = pointerToGameRoom;
 	}
 
 	@Override
@@ -29,7 +31,9 @@ public class GamePlayer extends Player implements Runnable {
 		while(true){
 			try {
 				objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
-				//objectClientOutput.writeObject();
+				while(true){
+					objectClientOutput.writeObject(pointerToGameRoom.getListOfPlayers());
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
