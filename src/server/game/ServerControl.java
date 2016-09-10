@@ -125,12 +125,6 @@ public class ServerControl implements Runnable{
 				listOfGameRooms.get(i).getPlayers().add(player);
 			}
 		}
-		try {
-			ObjectOutputStream objectClientOutput = new ObjectOutputStream(conn.getOutputStream());
-			objectClientOutput.writeObject(new String("Room full or done playing"));
-		} catch (IOException e) {
-			System.out.println("Lost connection while trying to find wanted Gameroom");
-		}
 	}
 	/**
 	 * Creates LinkedList of DGame from ServerGameRoom

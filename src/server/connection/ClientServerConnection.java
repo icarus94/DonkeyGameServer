@@ -11,6 +11,7 @@ import java.util.LinkedList;
 
 import server.*;
 import server.game.ServerControl;
+import server.game.ServerGameRoom;
 
 public class ClientServerConnection implements Runnable {
 	
@@ -38,11 +39,30 @@ public class ClientServerConnection implements Runnable {
 	 */
 	public void run() {
 		try {
-			
+			//
+			System.out.println(socketForConnection.getInetAddress().toString());
+            System.out.println(socketForConnection.getLocalAddress().toString());
+            System.out.println(socketForConnection.getPort());
+            System.out.println(socketForConnection.getLocalPort());
+            System.out.println(socketForConnection.getRemoteSocketAddress().toString());
+			//
 			inputClient = new BufferedReader(new InputStreamReader(socketForConnection.getInputStream()));
 			objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
 			
+			ServerGameRoom existingGameForThisPlayer = checkForUnfinishedGame();
+			if(existingGameForThisPlayer != null){
+				objectClientOutput.writeObject(new String("Do you want to reconnect to:"+existingGameForThisPlayer.getName()+"as"
+			+checkForPlayerNameInUnfinishedGame()));
+				String input = null;
+				while(input == null){
+					input = inputClient.readLine();
+				}
+				if(input.equals("yes")){
+					//method for reconnecting
+				}
+			}
 			while(true){
+				
 				objectClientOutput.writeObject(ServerControl.listOfGameRoomsTypeDGame());//sending list of GameRooms instanceof DGame
 				
 				String inputStringFromClient = null;
@@ -69,10 +89,11 @@ public class ClientServerConnection implements Runnable {
 						}
 						for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
 							if(ServerControl.listOfGameRooms.get(i).getName() == serverName){
-								objectClientOutput.writeObject(new String("serverNameUsed")); // Needs to be implemented on client side
+								objectClientOutput.writeObject(new String("serverNameUsed")); 
 								break mainLoop;
 							}
 						}
+						objectClientOutput.writeObject(new String("ok"));
 						while(serverPassword == null){
 							serverPassword = inputClient.readLine();
 						}
@@ -94,6 +115,21 @@ public class ClientServerConnection implements Runnable {
 						while(serverPassword == null){
 							serverPassword = inputClient.readLine();
 						}
+						boolean serverReady = false;
+						for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
+							if(ServerControl.listOfGameRooms.get(i).getName().equals(serverName) &&
+									ServerControl.listOfGameRooms.get(i).getListOfPlayers().size() < 4 &&
+									ServerControl.listOfGameRooms.get(i).getPassword().equals(serverPassword)){
+								objectClientOutput.writeObject(new String("ok"));
+								serverReady = true;
+								break;
+							}
+						}
+						if(!serverReady){
+							objectClientOutput.writeObject(new String("server done playing or full or inccorect password"));
+							System.out.println("server done playing or full or inccorect password for client "+playerName);
+							break mainLoop;
+						}
 						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,
 								new Player(playerName, this.socketForConnection))).start();
 						break;
@@ -105,7 +141,27 @@ public class ClientServerConnection implements Runnable {
 		}
 		
 	} 
-	
-	
+	public ServerGameRoom checkForUnfinishedGame(){
+		for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
+			for (int j = 0; j < ServerControl.listOfGameRooms.get(i).getListOfPlayers().size(); j++) {
+				if(ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getSocketAddressOfPlayer().equals(socketForConnection.getRemoteSocketAddress()) &&
+						ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getPortOfPlayer() == socketForConnection.getPort()){
+					return ServerControl.listOfGameRooms.get(i);
+				}
+			}
+		}
+		return null;
+	}
+	public String checkForPlayerNameInUnfinishedGame(){
+		for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
+			for (int j = 0; j < ServerControl.listOfGameRooms.get(i).getListOfPlayers().size(); j++) {
+				if(ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getSocketAddressOfPlayer().equals(socketForConnection.getRemoteSocketAddress()) &&
+						ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getPortOfPlayer() == socketForConnection.getPort()){
+					return ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getPlayerName();
+				}
+			}
+		}
+		return null;
+	}
 
 }
