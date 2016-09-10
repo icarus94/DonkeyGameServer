@@ -109,9 +109,6 @@ public class AIServer extends Player implements Runnable {
 	
 	public void transferPlayerHandCardsToCardHandRobot(){
 		cardHandRobot.clear();
-		Card[] playerHandCard = this.getPlayerHandCards();
-		for (int i = 0; i < playerHandCard.length; i++) {
-			this.cardHandRobot.addLast(playerHandCard[i]);
-		}
+		cardHandRobot = this.getPlayerHandCards();
 	}
 }

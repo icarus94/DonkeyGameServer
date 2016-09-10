@@ -33,10 +33,12 @@ public class HumanPlayer extends Player implements Runnable {
 				objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
 				while(true){
 					objectClientOutput.writeObject(pointerToGameRoom.getListOfPlayers());
+					if(this.getPlayerHandCards().size() == 5){
+						objectClientOutput.writeObject(this.getPlayerHandCards().getLast());//last card
+					}
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Human player:"+this.getPlayerName()+" has left the game");
 			}
 			
 		}

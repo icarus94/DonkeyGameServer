@@ -39,13 +39,13 @@ public class ClientServerConnection implements Runnable {
 	 */
 	public void run() {
 		try {
-			//
+			/*
 			System.out.println(socketForConnection.getInetAddress().toString());
             System.out.println(socketForConnection.getLocalAddress().toString());
             System.out.println(socketForConnection.getPort());
             System.out.println(socketForConnection.getLocalPort());
             System.out.println(socketForConnection.getRemoteSocketAddress().toString());
-			//
+			*/
 			inputClient = new BufferedReader(new InputStreamReader(socketForConnection.getInputStream()));
 			objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
 			
@@ -122,6 +122,7 @@ public class ClientServerConnection implements Runnable {
 									ServerControl.listOfGameRooms.get(i).getPassword().equals(serverPassword)){
 								objectClientOutput.writeObject(new String("ok"));
 								serverReady = true;
+								System.out.println("approve");
 								break;
 							}
 						}
@@ -144,7 +145,9 @@ public class ClientServerConnection implements Runnable {
 	public ServerGameRoom checkForUnfinishedGame(){
 		for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
 			for (int j = 0; j < ServerControl.listOfGameRooms.get(i).getListOfPlayers().size(); j++) {
-				if(ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getSocketAddressOfPlayer().equals(socketForConnection.getRemoteSocketAddress()) &&
+				if(ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j) != null &&
+						ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getSocketAddressOfPlayer() != null &&
+						ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getSocketAddressOfPlayer().equals(socketForConnection.getRemoteSocketAddress()) &&
 						ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getPortOfPlayer() == socketForConnection.getPort()){
 					return ServerControl.listOfGameRooms.get(i);
 				}
@@ -155,7 +158,9 @@ public class ClientServerConnection implements Runnable {
 	public String checkForPlayerNameInUnfinishedGame(){
 		for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
 			for (int j = 0; j < ServerControl.listOfGameRooms.get(i).getListOfPlayers().size(); j++) {
-				if(ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getSocketAddressOfPlayer().equals(socketForConnection.getRemoteSocketAddress()) &&
+				if(ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j) != null &&
+						ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getSocketAddressOfPlayer() != null &&
+						ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getSocketAddressOfPlayer().equals(socketForConnection.getRemoteSocketAddress()) &&
 						ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getPortOfPlayer() == socketForConnection.getPort()){
 					return ServerControl.listOfGameRooms.get(i).getListOfPlayers().get(j).getPlayerName();
 				}
