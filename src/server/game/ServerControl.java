@@ -62,7 +62,14 @@ public class ServerControl implements Runnable {
 						}
 					}
 				}
-
+				if(inputStringFromClient.contains("time:")){
+					String timeString = inputStringFromClient.replaceFirst("time:", "");
+					double time = Double.parseDouble(timeString);
+					System.out.println(this.playerForControl.getPlayerName()+":"+time);
+					HumanPlayer hp = (HumanPlayer) this.playerForControl;
+					hp.setTime(time);
+					this.playerForControl.setAreCardsDropped(true);
+				}
 			}
 		} catch (IOException e) {
 			System.out.println("Lost connection in ServerControl");

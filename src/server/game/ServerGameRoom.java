@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import server.Card;
 import server.DGame;
 import server.Player;
+import server.AI.AIServer;
 
 public class ServerGameRoom extends DGame implements Runnable{
 	private volatile LinkedList<Player> listOfPlayers = new LinkedList<>();
@@ -27,12 +28,19 @@ public class ServerGameRoom extends DGame implements Runnable{
 		this.listOfPlayers.addLast(player);
 		if(numberOfBots <= 3){
 			for (int i = 1; i <= numberOfBots; i++) {
-				this.listOfPlayers.addLast(new Player("Robot"+i,null));
+				this.listOfPlayers.addLast(new AIServer("Robot"+i));//Insertion of AI
 				this.listOfPlayers.getLast().setItARobot(true);
 			}
 		}
 	}
 	
+	public void addLetterToPlayerWhoLostTheRound(){
+		
+	}
+	
+	/**
+	 * Resets possesionTwoOfClubs and areCardsDropped
+	 */
 	public void restartPlayersSettings(){
 		for (int i = 0; i < this.listOfPlayers.size(); i++) {
 			this.listOfPlayers.get(i).setAreCardsDropped(false);
@@ -48,7 +56,6 @@ public class ServerGameRoom extends DGame implements Runnable{
 				if(listOfPlayers.get(i).isItARobot()){
 					continue;
 				}
-				
 			}
 		}
 		while(true){
@@ -60,15 +67,26 @@ public class ServerGameRoom extends DGame implements Runnable{
 			}*/
 			//cardDeck = null;
 			int indexOfPlayerForDealingCards = 0, counter = 0;
+			LinkedList<Card> oneHand = new LinkedList<>();
 			
-			for (int i = 1+(roundCounter%4); i < listOfPlayers.size(); i++) {
-				for (int j = 0; j < cardDeck.size(); j++) {
-					
+			for (int i = 0+(roundCounter%4); i < listOfPlayers.size(); i++) {
+				if(counter == 0){
+					for (; counter < counter+5; counter++) {
+						oneHand.add(cardDeck.get(counter));
+					}
+					listOfPlayers.get(indexOfPlayerForDealingCards++).setPlayerHandCards(oneHand);
+					continue;
 				}
-				listOfPlayers.get(indexOfPlayerForDealingCards++).setPlayerHandCards(null);
+				for (; counter < counter+4; counter++) {
+					oneHand.add(cardDeck.get(counter));
+				}
+				listOfPlayers.get(indexOfPlayerForDealingCards++).setPlayerHandCards(oneHand);
 			}
 			for (int i = 0; i < (roundCounter%4); i++) {
-				listOfPlayers.get(indexOfPlayerForDealingCards++).setPlayerHandCards(null);
+				for (; counter < counter+4; counter++) {
+					oneHand.add(cardDeck.get(counter));
+				}
+				listOfPlayers.get(indexOfPlayerForDealingCards++).setPlayerHandCards(oneHand);
 			}
 			while(true){
 				if(listOfPlayers.get(0).isAreCardsDropped() !=true &&
@@ -78,11 +96,7 @@ public class ServerGameRoom extends DGame implements Runnable{
 					break;
 				}
 			}
+			
 		}
-		
 	}
-	
-
-	
-	
 }

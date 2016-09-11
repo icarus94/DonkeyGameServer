@@ -12,6 +12,9 @@ public class AIServer extends Player implements Runnable {
 	private int playCounter = 0;
 	private volatile boolean areCardsDown = false;
 
+	public AIServer(String playerName) {
+		super(playerName);
+	}
 	@Override
 	public void run() {
 		

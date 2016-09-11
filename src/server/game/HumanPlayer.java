@@ -11,6 +11,22 @@ public class HumanPlayer extends Player implements Runnable {
 	private Socket socketForConnection;
 	private ObjectOutputStream objectClientOutput;
 	private ServerGameRoom pointerToGameRoom;
+	private double time = 0;
+	
+	
+
+	public HumanPlayer(String playerName, Socket socketConnection) {
+		super(playerName, socketConnection);
+		this.socketForConnection = socketConnection;
+	}
+
+	public ServerGameRoom getPointerToGameRoom() {
+		return pointerToGameRoom;
+	}
+
+	public void setPointerToGameRoom(ServerGameRoom pointerToGameRoom) {
+		this.pointerToGameRoom = pointerToGameRoom;
+	}
 
 	public Socket getSocketForConnection() {
 		return socketForConnection;
@@ -43,6 +59,14 @@ public class HumanPlayer extends Player implements Runnable {
 			
 		}
 		
+	}
+
+	public double getTime() {
+		return time;
+	}
+
+	public void setTime(double time) {
+		this.time = time;
 	}
 	
 	

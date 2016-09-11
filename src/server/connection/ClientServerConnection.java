@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 import server.*;
+import server.game.HumanPlayer;
 import server.game.ServerControl;
 import server.game.ServerGameRoom;
 
@@ -77,7 +78,7 @@ public class ClientServerConnection implements Runnable {
 						while(playerName == null){
 							playerName = inputClient.readLine();
 						}
-						new Thread(new ServerControl(socketForConnection,new Player(playerName, this.socketForConnection))).start();
+						new Thread(new ServerControl(socketForConnection,new HumanPlayer(playerName, this.socketForConnection))).start();
 						break;
 					}
 					case "newGameRoom": {
@@ -102,7 +103,7 @@ public class ClientServerConnection implements Runnable {
 						}
 						int numberOfBotsTypeInt = Integer.parseInt(numberOfBots); //Parsing to INT
 						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,numberOfBotsTypeInt,
-								new Player(playerName, this.socketForConnection))).start();
+								new HumanPlayer(playerName, this.socketForConnection))).start();
 						break;
 					} 
 					case "connectToGameRoom":{
@@ -132,7 +133,7 @@ public class ClientServerConnection implements Runnable {
 							break mainLoop;
 						}
 						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,
-								new Player(playerName, this.socketForConnection))).start();
+								new HumanPlayer(playerName, this.socketForConnection))).start();
 						break;
 					}
 				}
