@@ -43,29 +43,29 @@ public class ServerControl implements Runnable {
 					}
 				}
 				if (inputStringFromClient.equals("quitGameRoom")) {// Needs to
-					throw new IOException();						// be
-																	// implemented
-																	// on
-																	// clientSide
+					throw new IOException(); // be
+												// implemented
+												// on
+												// clientSide
 				}
-				if(convertStringToCard(inputStringFromClient) != null){
+				if (convertStringToCard(inputStringFromClient) != null) {
 					for (int i = 0; i < gameRoomForInputControl.getListOfPlayers().size(); i++) {
-						if(gameRoomForInputControl.getListOfPlayers().get(i).equals(playerForControl)){
-							gameRoomForInputControl.getListOfPlayers().get(i).getPlayerHandCards().remove(
-									convertStringToCard(inputStringFromClient));
+						if (gameRoomForInputControl.getListOfPlayers().get(i).equals(playerForControl)) {
+							gameRoomForInputControl.getListOfPlayers().get(i).getPlayerHandCards()
+									.remove(convertStringToCard(inputStringFromClient));
 							int index = i++;
-							if(index == 4) {
+							if (index == 4) {
 								index = 0;
 							}
-							gameRoomForInputControl.getListOfPlayers().get(index).getPlayerHandCards().addLast(
-									convertStringToCard(inputStringFromClient));	
+							gameRoomForInputControl.getListOfPlayers().get(index).getPlayerHandCards()
+									.addLast(convertStringToCard(inputStringFromClient));
 						}
 					}
 				}
-				if(inputStringFromClient.contains("time:")){
+				if (inputStringFromClient.contains("time:")) {
 					String timeString = inputStringFromClient.replaceFirst("time:", "");
 					double time = Double.parseDouble(timeString);
-					System.out.println(this.playerForControl.getPlayerName()+":"+time);
+					System.out.println(this.playerForControl.getPlayerName() + ":" + time);
 					HumanPlayer hp = (HumanPlayer) this.playerForControl;
 					hp.setTime(time);
 					this.playerForControl.setAreCardsDropped(true);
@@ -175,7 +175,7 @@ public class ServerControl implements Runnable {
 		for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
 			listOfRoomsTypeDgame.addFirst(new DGame(ServerControl.listOfGameRooms.get(i).getPassword(),
 					ServerControl.listOfGameRooms.get(i).getName()));
-			listOfRoomsTypeDgame.getFirst().setPlayers(ServerControl.listOfGameRooms.get(i).getListOfPlayers());
+			listOfRoomsTypeDgame.getFirst().setPlayers(ServerControl.listOfGameRooms.get(i).getListOfPlayersTypePLAYER());
 		}
 		return listOfRoomsTypeDgame;
 	}

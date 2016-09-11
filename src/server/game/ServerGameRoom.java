@@ -15,6 +15,22 @@ public class ServerGameRoom extends DGame implements Runnable{
 	int roundCounter = 0;
 	
 	ObjectOutputStream objectClientOutput;
+	
+	public LinkedList<Player> getListOfPlayersTypePLAYER(){
+		LinkedList<Player> playerList = new LinkedList<>();
+		for (int i = 0; i < listOfPlayers.size(); i++) {
+			playerList.addLast(new Player(listOfPlayers.get(i).getPlayerName()));
+			playerList.getLast().setAreCardsDropped(listOfPlayers.get(i).isAreCardsDropped());
+			playerList.getLast().setDonkeyLetters(listOfPlayers.get(i).getDonkeyLetters());
+			playerList.getLast().setItARobot(listOfPlayers.get(i).isItARobot());
+			playerList.getLast().setNumberOfCardsInHand(listOfPlayers.get(i).getNumberOfCardsInHand());
+			playerList.getLast().setPlayerHandCards(listOfPlayers.get(i).getPlayerHandCards());
+			playerList.getLast().setPortOfPlayer(listOfPlayers.get(i).getPortOfPlayer());
+			playerList.getLast().setPossesionTwoOfClubs(listOfPlayers.get(i).isPossesionTwoOfClubs());
+			playerList.getLast().setSocketAddressOfPlayer(listOfPlayers.get(i).getSocketAddressOfPlayer());
+		}
+		return playerList;
+	}
 
 	public LinkedList<Player> getListOfPlayers() {
 		return listOfPlayers;
