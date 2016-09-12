@@ -21,9 +21,10 @@ public class ServerControl implements Runnable {
 
 	@Override
 	public void run() {
+		ClientServerConnection pointerToClientServerConnectionForFirstThread = null;
 		for (int i = 0; i < ServerStartup.clientConnectionList.size(); i++) {
 			if (ServerStartup.clientConnectionList.get(i).getSocketForConnection().equals(socketForConnection)) {
-				// treba ti posle za id konekcije da gasis predhodni thread
+				pointerToClientServerConnectionForFirstThread = ServerStartup.clientConnectionList.get(i);
 			}
 		}
 
@@ -35,6 +36,7 @@ public class ServerControl implements Runnable {
 				while (inputStringFromClient == null) {
 					inputStringFromClient = inputClient.readLine();
 				}
+				System.out.println(inputStringFromClient);
 				if (inputStringFromClient == "drop") {
 					for (int i = 0; i < gameRoomForInputControl.getListOfPlayers().size(); i++) {
 						if (playerForControl.equals(gameRoomForInputControl.getListOfPlayers().get(i))) {
@@ -75,7 +77,7 @@ public class ServerControl implements Runnable {
 			}
 		} catch (IOException e) {
 			System.out.println("Lost connection in ServerControl");
-			notify();
+			pointerToClientServerConnectionForFirstThread.setGameRoomRunning(false);
 			return;
 		}
 
@@ -190,6 +192,8 @@ public class ServerControl implements Runnable {
 	}
 
 	public Card convertStringToCard(String inputStringFromClient) {
+		if(!inputStringFromClient.contains("."))
+			return null;
 		String[] arrayOfCard = inputStringFromClient.split(".");
 		switch (arrayOfCard[0]) {
 		case "11": {

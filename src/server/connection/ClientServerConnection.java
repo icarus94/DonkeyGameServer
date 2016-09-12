@@ -21,6 +21,10 @@ public class ClientServerConnection implements Runnable {
 	private ObjectOutputStream objectClientOutput;
 	private boolean gameRoomRunning = false;
 	
+	
+	public void setGameRoomRunning(boolean gameRoomRunning) {
+		this.gameRoomRunning = gameRoomRunning;
+	}
 	/**
 	 * Can be used for thread ID
 	 * @return

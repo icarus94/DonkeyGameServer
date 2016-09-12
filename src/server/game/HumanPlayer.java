@@ -47,15 +47,19 @@ public class HumanPlayer extends Player implements Runnable {
 		while(true){
 			try {
 				objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
+				boolean alreadySendForThisRound = false;
 				while(true){
 					objectClientOutput.writeObject(pointerToGameRoom.getListOfPlayersTypePLAYER());
-					if(this.getPlayerHandCards().size() == 5){
+					if(this.getPlayerHandCards().size() == 5 && !alreadySendForThisRound){
 						objectClientOutput.writeObject(this.getPlayerHandCards().getLast());//last card
+						alreadySendForThisRound = true;
 					}
+					if(this.getPlayerHandCards().size() == 4)
+						alreadySendForThisRound = false;
 				}
 			} catch (IOException e) {
 				System.out.println("Human player:"+this.getPlayerName()+" has left the game");
-				notify();
+				//kod za paljenje prvog threada
 				return;
 			}
 			

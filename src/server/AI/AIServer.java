@@ -53,6 +53,7 @@ public class AIServer extends Player implements Runnable {
 						double randomValue = 1 + (8 - 1) * r.nextDouble();
 						this.setTime(randomValue);
 						this.setAreCardsDropped(true);
+						this.cardHandRobot.clear();
 					}
 				}
 			}

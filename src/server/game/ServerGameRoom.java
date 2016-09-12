@@ -12,9 +12,14 @@ import server.AI.AIServer;
 
 public class ServerGameRoom extends DGame implements Runnable{
 	private volatile LinkedList<Player> listOfPlayers = new LinkedList<>();
-	private int roundCounter = 0;
+	private volatile int roundCounter = 0;
+	private boolean gameRoomShutingDown = false;
 	
-	public int getRoundCounter() {
+		public boolean isGameRoomShutingDown() {
+		return gameRoomShutingDown;
+	}
+
+		public int getRoundCounter() {
 		return roundCounter;
 	}
 
@@ -195,7 +200,7 @@ public class ServerGameRoom extends DGame implements Runnable{
 				}
 			}
 			addLetterToPlayer(findPlayerWithHighestTime());
-			
+			roundCounter++;
 			if(isItEndOfTheGame()){
 				try {
 					wait(2000);
@@ -203,8 +208,8 @@ public class ServerGameRoom extends DGame implements Runnable{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				//return all players code
 				
-				notify();
 				return;
 			}
 		}
