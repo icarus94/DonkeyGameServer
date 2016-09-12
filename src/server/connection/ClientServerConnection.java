@@ -19,6 +19,7 @@ public class ClientServerConnection implements Runnable {
 	private Socket socketForConnection;
 	private BufferedReader inputClient;
 	private ObjectOutputStream objectClientOutput;
+	private boolean gameRoomRunning = false;
 	
 	/**
 	 * Can be used for thread ID
@@ -104,6 +105,10 @@ public class ClientServerConnection implements Runnable {
 						int numberOfBotsTypeInt = Integer.parseInt(numberOfBots); //Parsing to INT
 						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,numberOfBotsTypeInt,
 								new HumanPlayer(playerName, this.socketForConnection))).start();
+						gameRoomRunning = true;
+						while(gameRoomRunning){
+							
+						}
 						break;
 					} 
 					case "connectToGameRoom":{
@@ -134,6 +139,11 @@ public class ClientServerConnection implements Runnable {
 						}
 						new Thread(new ServerControl(socketForConnection,serverName,serverPassword,
 								new HumanPlayer(playerName, this.socketForConnection))).start();
+						try {
+							this.wait();
+						} catch (InterruptedException e) {
+							System.out.println("Thread problem");
+						}
 						break;
 					}
 				}

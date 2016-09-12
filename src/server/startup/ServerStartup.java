@@ -15,8 +15,9 @@ public class ServerStartup {
 
 	public static void main(String[] args) {
 		ServerControl.listOfGameRooms.add(new ServerGameRoom("soba", "", 3, new Player()));
-		ServerControl.listOfGameRooms.add(new ServerGameRoom("soba1", "", 3, new Player()));
-		ServerControl.listOfGameRooms.add(new ServerGameRoom("soba2", "", 3, new Player()));
+		//ServerControl.listOfGameRooms.add(new ServerGameRoom("soba1", "", 3, new Player()));
+		//ServerControl.listOfGameRooms.add(new ServerGameRoom("soba2", "", 3, new Player()));
+		new Thread(ServerControl.listOfGameRooms.getFirst()).start();;
 		
 		
 		

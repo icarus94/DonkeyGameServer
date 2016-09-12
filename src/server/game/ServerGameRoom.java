@@ -12,8 +12,12 @@ import server.AI.AIServer;
 
 public class ServerGameRoom extends DGame implements Runnable{
 	private volatile LinkedList<Player> listOfPlayers = new LinkedList<>();
-	int roundCounter = 0;
+	private int roundCounter = 0;
 	
+	public int getRoundCounter() {
+		return roundCounter;
+	}
+
 	ObjectOutputStream objectClientOutput;
 	
 	public LinkedList<Player> getListOfPlayersTypePLAYER(){
@@ -42,9 +46,14 @@ public class ServerGameRoom extends DGame implements Runnable{
 	public ServerGameRoom(String nameOfServer,String gamePassword,int numberOfBots,Player player){
 		super(gamePassword,nameOfServer);
 		this.listOfPlayers.addLast(player);
+		if(player instanceof HumanPlayer){
+			HumanPlayer hp = (HumanPlayer) player;
+			hp.setPointerToGameRoom(this);
+			System.out.println("ID as HumanPlayer");
+		}
 		if(numberOfBots <= 3){
 			for (int i = 1; i <= numberOfBots; i++) {
-				this.listOfPlayers.addLast(new AIServer("Robot"+i));//Insertion of AI
+				this.listOfPlayers.addLast(new AIServer("Robot"+i,this));//Insertion of AI
 				this.listOfPlayers.getLast().setItARobot(true);
 			}
 		}
@@ -61,58 +70,143 @@ public class ServerGameRoom extends DGame implements Runnable{
 		for (int i = 0; i < this.listOfPlayers.size(); i++) {
 			this.listOfPlayers.get(i).setAreCardsDropped(false);
 			this.listOfPlayers.get(i).setPossesionTwoOfClubs(false);
+			this.listOfPlayers.get(i).setTime(0);
+			this.listOfPlayers.get(i).getPlayerHandCards().clear();
 		}
 		
 	}
 	
-	@Override
-	public void run() {
-		while(!(listOfPlayers.size() == 4)){
-			for (int i = 0; i < listOfPlayers.size(); i++) {
-				if(listOfPlayers.get(i).isItARobot()){
-					continue;
-				}
+	public void startHumanPlayerThreadForComm(){
+		for (int i = 0; i < listOfPlayers.size(); i++) {
+			if(listOfPlayers.get(i) instanceof HumanPlayer){
+				HumanPlayer hp = (HumanPlayer) listOfPlayers.get(i);
+				new Thread(hp).start();
 			}
+		}
+	}
+
+	public void dealCards(){
+		LinkedList<Card> cardDeck = Card.shuffledCardDeck();
+		boolean firstHandDealt = false;
+		
+		for (int i =(roundCounter%4); i < listOfPlayers.size(); i++) {
+			if(firstHandDealt == false){
+				for (int j=0; j < 5; j++) {
+					listOfPlayers.get(i).getPlayerHandCards().addLast(cardDeck.pop());
+				}
+				firstHandDealt = true;
+				listOfPlayers.get(i).setNumberOfCardsInHand(5);
+				continue;
+			}
+			for (int j=0; j < 4; j++) {
+				listOfPlayers.get(i).getPlayerHandCards().addLast(cardDeck.pop());
+			}
+			listOfPlayers.get(i).setNumberOfCardsInHand(4);
+		}
+		for (int i = 0; i < (roundCounter%4); i++) {
+			for (int j=0; j < 4; j++) {
+				listOfPlayers.get(i).getPlayerHandCards().addLast(cardDeck.pop());
+			}
+			listOfPlayers.get(i).setNumberOfCardsInHand(4);
+		}
+	}
+	
+	public void startRobotPlayers(){
+		for (int i = 0; i < listOfPlayers.size(); i++) {
+			if(listOfPlayers.get(i) instanceof AIServer){
+				AIServer aiS = (AIServer) listOfPlayers.get(i);
+				new Thread(aiS).start();
+			}
+		}
+	}
+	public void addLetterToPlayer(Player player){
+		switch (player.getDonkeyLetters().length()) {
+			case 0:{
+				player.setDonkeyLetters("D");
+				break;
+			}
+			case 1:{
+				player.setDonkeyLetters("Do");
+				break;
+			}
+			case 2:{
+				player.setDonkeyLetters("Don");
+				break;
+			}
+			case 3:{
+				player.setDonkeyLetters("Donk");
+				break;
+			}
+			case 4:{
+				player.setDonkeyLetters("Donke");
+				break;
+			}
+			case 5:{
+				player.setDonkeyLetters("Donkey");
+				break;
+			}
+		}
+	}
+	
+	public Player findPlayerWithHighestTime(){
+		Player playerWithHighestTime = listOfPlayers.get(0);
+		for (int i = 1; i < listOfPlayers.size(); i++) {
+			if(playerWithHighestTime.getTime()<listOfPlayers.get(i).getTime()){
+				playerWithHighestTime = listOfPlayers.get(i);
+			}
+		}
+		return playerWithHighestTime;
+	}
+	
+	public boolean isItEndOfTheGame(){
+		boolean checkEnd = false;
+		for (int i = 0; i < listOfPlayers.size(); i++) {
+			if(listOfPlayers.get(i).getDonkeyLetters().length() == 6){
+				checkEnd = true;
+				break;
+			}
+		}
+		return checkEnd;
+	}
+	
+	public void run() {
+		this.startHumanPlayerThreadForComm();
+		this.startRobotPlayers();
+		while(!(listOfPlayers.size() == 4)){
+			
 		}
 		while(true){
 			this.restartPlayersSettings();//restarts possisonTwoOfClubs and areCardsDown
-			LinkedList<Card> cardDeck = Card.shuffledCardDeck();
-			/*Card[] cardDeckArray = new Card[cardDeck.size()];
-			for (int i = 0; i < cardDeck.size(); i++) {
-				cardDeckArray[i] = cardDeck.get(i);
-			}*/
-			//cardDeck = null;
-			int indexOfPlayerForDealingCards = 0, counter = 0;
-			LinkedList<Card> oneHand = new LinkedList<>();
+			this.dealCards(); //Deals cards
 			
-			for (int i = 0+(roundCounter%4); i < listOfPlayers.size(); i++) {
-				if(counter == 0){
-					for (; counter < counter+5; counter++) {
-						oneHand.add(cardDeck.get(counter));
-					}
-					listOfPlayers.get(indexOfPlayerForDealingCards++).setPlayerHandCards(oneHand);
-					continue;
+			for (int i = 0; i < listOfPlayers.size(); i++) {
+				for (int j = 0; j < listOfPlayers.get(i).getPlayerHandCards().size(); j++) {
+					System.out.println(listOfPlayers.get(i).getPlayerHandCards().get(j).getCardNumber()+" "+
+							listOfPlayers.get(i).getPlayerHandCards().get(j).getSymbolOfCard());
 				}
-				for (; counter < counter+4; counter++) {
-					oneHand.add(cardDeck.get(counter));
-				}
-				listOfPlayers.get(indexOfPlayerForDealingCards++).setPlayerHandCards(oneHand);
-			}
-			for (int i = 0; i < (roundCounter%4); i++) {
-				for (; counter < counter+4; counter++) {
-					oneHand.add(cardDeck.get(counter));
-				}
-				listOfPlayers.get(indexOfPlayerForDealingCards++).setPlayerHandCards(oneHand);
-			}
+				System.out.println("for player "+listOfPlayers.get(i).getPlayerName()+"\n");
+			}//za ispis
 			while(true){
-				if(listOfPlayers.get(0).isAreCardsDropped() !=true &&
-						listOfPlayers.get(1).isAreCardsDropped() !=true &&
-						listOfPlayers.get(2).isAreCardsDropped() !=true &&
-						listOfPlayers.get(3).isAreCardsDropped() !=true){
+				if(listOfPlayers.get(0).isAreCardsDropped() ==true &&
+						listOfPlayers.get(1).isAreCardsDropped() ==true &&
+						listOfPlayers.get(2).isAreCardsDropped() ==true &&
+						listOfPlayers.get(3).isAreCardsDropped() ==true){
 					break;
 				}
 			}
+			addLetterToPlayer(findPlayerWithHighestTime());
 			
+			if(isItEndOfTheGame()){
+				try {
+					wait(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				notify();
+				return;
+			}
 		}
 	}
 }

@@ -1,31 +1,60 @@
  package server.AI;
 
 import java.util.LinkedList;
+import java.util.Random;
+
+import com.sun.javafx.scene.paint.GradientUtils.Point;
 
 import server.Card;
 import server.Player;
+import server.game.ServerGameRoom;
 
 public class AIServer extends Player implements Runnable {
 	
-	private volatile LinkedList<Card> cardHandRobot;
+	private volatile LinkedList<Card> cardHandRobot = this.getPlayerHandCards();
 	private volatile boolean possessionOfTwoOfClubs = false;
 	private int playCounter = 0;
-	private volatile boolean areCardsDown = false;
+	private ServerGameRoom pointerToGameRoom = null;
+	
+	//private volatile boolean areCardsDown = false;
 
-	public AIServer(String playerName) {
+	public AIServer(String playerName,ServerGameRoom pointerToGameRoom) {
 		super(playerName);
+		this.pointerToGameRoom = pointerToGameRoom;
 	}
 	@Override
 	public void run() {
-		
-		while(!areCardsDown){
-			this.transferPlayerHandCardsToCardHandRobot();
-			if(cardHandRobot.size() == 5){
-				whichCardToForward();
-				playCounter++;
+		while(true){
+			while(cardHandRobot.isEmpty()){
+				
 			}
-			if(!(checkPossessionOfTwoOfClubs()) && isThereARowOfSameCards()){
-				areCardsDown = true;
+			while(!this.isAreCardsDropped()){
+				//this.transferPlayerHandCardsToCardHandRobot();
+				if(cardHandRobot.size() == 5){
+					Card forwardingCard = whichCardToForward();
+					this.getPlayerHandCards().remove(forwardingCard);
+					this.setNumberOfCardsInHand(4);
+					for (int i = 0; i < pointerToGameRoom.getListOfPlayers().size(); i++) {
+						if(pointerToGameRoom.getListOfPlayers().get(i).equals(this)){
+							pointerToGameRoom.getListOfPlayers().get(i+1).getPlayerHandCards().addLast(forwardingCard);
+							pointerToGameRoom.getListOfPlayers().get(i+1).setNumberOfCardsInHand(5);
+						}
+					}
+					playCounter++;
+				}
+				if(!(checkPossessionOfTwoOfClubs()) && isThereARowOfSameCards()){
+					this.setAreCardsDropped(true);
+				}
+				for (int i = 0; i < pointerToGameRoom.getListOfPlayers().size(); i++) {
+					if(pointerToGameRoom.getListOfPlayers().get(i).isAreCardsDropped() &&
+							!pointerToGameRoom.getListOfPlayers().get(i).equals(this)){
+						//otaseva metoda za tajmer
+						Random r = new Random();
+						double randomValue = 1 + (8 - 1) * r.nextDouble();
+						this.setTime(randomValue);
+						this.setAreCardsDropped(true);
+					}
+				}
 			}
 		}
 	}
@@ -97,9 +126,7 @@ public class AIServer extends Player implements Runnable {
 			return true;
 		return false;
 }
-	public void triggerWhenCardsAreDown(){
-		this.areCardsDown=true;
-	}
+	
 	public void addCard(Card card){
 		if(cardHandRobot.size()==4)
 			this.cardHandRobot.add(card);

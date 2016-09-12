@@ -11,7 +11,7 @@ public class HumanPlayer extends Player implements Runnable {
 	private Socket socketForConnection;
 	private ObjectOutputStream objectClientOutput;
 	private ServerGameRoom pointerToGameRoom;
-	private double time = 0;
+	
 	
 	
 
@@ -48,27 +48,18 @@ public class HumanPlayer extends Player implements Runnable {
 			try {
 				objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
 				while(true){
-					objectClientOutput.writeObject(pointerToGameRoom.getListOfPlayers());
+					objectClientOutput.writeObject(pointerToGameRoom.getListOfPlayersTypePLAYER());
 					if(this.getPlayerHandCards().size() == 5){
 						objectClientOutput.writeObject(this.getPlayerHandCards().getLast());//last card
 					}
 				}
 			} catch (IOException e) {
 				System.out.println("Human player:"+this.getPlayerName()+" has left the game");
+				notify();
+				return;
 			}
 			
 		}
 		
 	}
-
-	public double getTime() {
-		return time;
-	}
-
-	public void setTime(double time) {
-		this.time = time;
-	}
-	
-	
-	
 }

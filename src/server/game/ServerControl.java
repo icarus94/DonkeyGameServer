@@ -53,12 +53,14 @@ public class ServerControl implements Runnable {
 						if (gameRoomForInputControl.getListOfPlayers().get(i).equals(playerForControl)) {
 							gameRoomForInputControl.getListOfPlayers().get(i).getPlayerHandCards()
 									.remove(convertStringToCard(inputStringFromClient));
+							gameRoomForInputControl.getListOfPlayers().get(i).setNumberOfCardsInHand(4);
 							int index = i++;
 							if (index == 4) {
 								index = 0;
 							}
 							gameRoomForInputControl.getListOfPlayers().get(index).getPlayerHandCards()
 									.addLast(convertStringToCard(inputStringFromClient));
+							gameRoomForInputControl.getListOfPlayers().get(5);
 						}
 					}
 				}
@@ -73,6 +75,8 @@ public class ServerControl implements Runnable {
 			}
 		} catch (IOException e) {
 			System.out.println("Lost connection in ServerControl");
+			notify();
+			return;
 		}
 
 	}
@@ -161,6 +165,11 @@ public class ServerControl implements Runnable {
 					&& listOfGameRooms.get(i).getPassword().equals(gamePassword)
 					&& listOfGameRooms.get(i).getListOfPlayers().size() < 4) {
 				listOfGameRooms.get(i).getPlayers().add(player);
+				if(player instanceof HumanPlayer){
+					HumanPlayer hp = (HumanPlayer) player;
+					hp.setPointerToGameRoom(listOfGameRooms.get(i));
+					System.out.println("ID as HumanPlayer");
+				}
 			}
 		}
 	}
