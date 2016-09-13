@@ -11,7 +11,7 @@ import server.game.ServerGameRoom;
 
 public class AIServer extends Player implements Runnable {
 	
-	private volatile LinkedList<Card> cardHandRobot = this.getPlayerHandCards();
+	private volatile LinkedList<Card> cardHandRobot = getPlayerHandCards();
 	private volatile boolean possessionOfTwoOfClubs = false;
 	private int playCounter = 0;
 	private ServerGameRoom pointerToGameRoom = null;
@@ -24,26 +24,45 @@ public class AIServer extends Player implements Runnable {
 	}
 	@Override
 	public void run() {
+		boolean first = true;
 		while(true){
+			
 			while(cardHandRobot.isEmpty()){
 				
 			}
 			while(!this.isAreCardsDropped()){
+				
+				//System.out.println(cardHandRobot.size()+"for "+this.getPlayerName());
 				//this.transferPlayerHandCardsToCardHandRobot();
 				if(cardHandRobot.size() == 5){
+					System.out.println("dobio 5");
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					Card forwardingCard = whichCardToForward();
+					System.out.println(forwardingCard.getCardNumber());
 					this.getPlayerHandCards().remove(forwardingCard);
 					this.setNumberOfCardsInHand(4);
 					for (int i = 0; i < pointerToGameRoom.getListOfPlayers().size(); i++) {
 						if(pointerToGameRoom.getListOfPlayers().get(i).equals(this)){
-							pointerToGameRoom.getListOfPlayers().get(i+1).getPlayerHandCards().addLast(forwardingCard);
-							pointerToGameRoom.getListOfPlayers().get(i+1).setNumberOfCardsInHand(5);
+							if(++i == 4){
+								i=0;
+							}
+							System.out.println("prosledio");
+							pointerToGameRoom.getListOfPlayers().get(i).getPlayerHandCards().addLast(forwardingCard);
+							pointerToGameRoom.getListOfPlayers().get(i).setNumberOfCardsInHand(5);
+							break;
 						}
 					}
 					playCounter++;
+					
 				}
 				if(!(checkPossessionOfTwoOfClubs()) && isThereARowOfSameCards()){
 					this.setAreCardsDropped(true);
+					this.cardHandRobot.clear();
 				}
 				for (int i = 0; i < pointerToGameRoom.getListOfPlayers().size(); i++) {
 					if(pointerToGameRoom.getListOfPlayers().get(i).isAreCardsDropped() &&
@@ -59,7 +78,7 @@ public class AIServer extends Player implements Runnable {
 			}
 		}
 	}
-	private boolean checkPossessionOfTwoOfClubs(){
+	private synchronized boolean checkPossessionOfTwoOfClubs(){
 		if(cardHandRobot.contains(Card.TWO_OF_CLUBS)){
 			possessionOfTwoOfClubs=true;
 		}else{
@@ -67,7 +86,7 @@ public class AIServer extends Player implements Runnable {
 		}
 		return possessionOfTwoOfClubs;
 	}
-	private Card whichCardToForward(){
+	private synchronized Card whichCardToForward(){
 		Card forwardingCard = null;
 		int cardCounter = -1; 
 		int startingPoint = 0;
@@ -105,7 +124,7 @@ public class AIServer extends Player implements Runnable {
 		}	
 		return forwardingCard;
 	}
-	private boolean isThereARowOfSameCards(){
+	private synchronized boolean isThereARowOfSameCards(){
 		if(checkPossessionOfTwoOfClubs())
 			return false;
 		Card checker = cardHandRobot.get(0);
@@ -128,17 +147,17 @@ public class AIServer extends Player implements Runnable {
 		return false;
 }
 	
-	public void addCard(Card card){
+	public synchronized void addCard(Card card){
 		if(cardHandRobot.size()==4)
 			this.cardHandRobot.add(card);
 	}
 
-	public void addCards(LinkedList<Card> cardHand){
+	public synchronized void addCards(LinkedList<Card> cardHand){
 		if(cardHand.size()<=5)
 			this.cardHandRobot = cardHand;
 	}
 	
-	public void transferPlayerHandCardsToCardHandRobot(){
+	public synchronized void transferPlayerHandCardsToCardHandRobot(){
 		cardHandRobot.clear();
 		cardHandRobot = this.getPlayerHandCards();
 	}

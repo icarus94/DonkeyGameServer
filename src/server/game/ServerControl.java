@@ -53,16 +53,27 @@ public class ServerControl implements Runnable {
 				if (convertStringToCard(inputStringFromClient) != null) {
 					for (int i = 0; i < gameRoomForInputControl.getListOfPlayers().size(); i++) {
 						if (gameRoomForInputControl.getListOfPlayers().get(i).equals(playerForControl)) {
-							gameRoomForInputControl.getListOfPlayers().get(i).getPlayerHandCards()
-									.remove(convertStringToCard(inputStringFromClient));
+							Card oneCard = convertStringToCard(inputStringFromClient);
+							gameRoomForInputControl.getListOfPlayers().get(i).getPlayerHandCards().remove(oneCard);
+							System.out.println(oneCard.getCardNumber());
+							System.out.println("moje karte");
+							for (int j = 0; j < gameRoomForInputControl.getListOfPlayers().get(i).getPlayerHandCards()
+									.size(); j++) {
+								System.out.println(gameRoomForInputControl.getListOfPlayers().get(i).getPlayerHandCards().get(j).getCardNumber());
+
+							}
 							gameRoomForInputControl.getListOfPlayers().get(i).setNumberOfCardsInHand(4);
-							int index = i++;
+							int index = ++i;
 							if (index == 4) {
 								index = 0;
 							}
 							gameRoomForInputControl.getListOfPlayers().get(index).getPlayerHandCards()
 									.addLast(convertStringToCard(inputStringFromClient));
-							gameRoomForInputControl.getListOfPlayers().get(5);
+							gameRoomForInputControl.getListOfPlayers().get(index).setNumberOfCardsInHand(5);
+							System.out.println(gameRoomForInputControl.getListOfPlayers().get(index).getPlayerName()
+									+ "last" + gameRoomForInputControl.getListOfPlayers().get(index)
+											.getPlayerHandCards().getLast().getCardNumber());
+							Player.ispisSvega(gameRoomForInputControl.getListOfPlayers());
 						}
 					}
 				}
@@ -148,7 +159,10 @@ public class ServerControl implements Runnable {
 	 */
 	public ServerControl(Socket conn, String nameOfNewGameRoom, String gamePassword, int numberOfBots, Player player) {
 		this.socketForConnection = conn;
-		listOfGameRooms.addFirst(new ServerGameRoom(nameOfNewGameRoom, gamePassword, numberOfBots, player));
+		this.playerForControl = player;
+		ServerGameRoom sgr = new ServerGameRoom(nameOfNewGameRoom, gamePassword, numberOfBots, player);
+		this.gameRoomForInputControl = sgr;
+		listOfGameRooms.addFirst(sgr);
 		new Thread(listOfGameRooms.getFirst()).start();
 	}
 
@@ -167,7 +181,7 @@ public class ServerControl implements Runnable {
 					&& listOfGameRooms.get(i).getPassword().equals(gamePassword)
 					&& listOfGameRooms.get(i).getListOfPlayers().size() < 4) {
 				listOfGameRooms.get(i).getPlayers().add(player);
-				if(player instanceof HumanPlayer){
+				if (player instanceof HumanPlayer) {
 					HumanPlayer hp = (HumanPlayer) player;
 					hp.setPointerToGameRoom(listOfGameRooms.get(i));
 					System.out.println("ID as HumanPlayer");
@@ -181,20 +195,21 @@ public class ServerControl implements Runnable {
 	 * 
 	 * @return
 	 */
-	public static LinkedList<DGame> listOfGameRoomsTypeDGame() {
+	public synchronized static LinkedList<DGame> listOfGameRoomsTypeDGame() {
 		LinkedList<DGame> listOfRoomsTypeDgame = new LinkedList<>();
 		for (int i = 0; i < ServerControl.listOfGameRooms.size(); i++) {
 			listOfRoomsTypeDgame.addFirst(new DGame(ServerControl.listOfGameRooms.get(i).getPassword(),
 					ServerControl.listOfGameRooms.get(i).getName()));
-			listOfRoomsTypeDgame.getFirst().setPlayers(ServerControl.listOfGameRooms.get(i).getListOfPlayersTypePLAYER());
+			listOfRoomsTypeDgame.getFirst()
+					.setPlayers(ServerControl.listOfGameRooms.get(i).getListOfPlayersTypePLAYER());
 		}
 		return listOfRoomsTypeDgame;
 	}
 
-	public Card convertStringToCard(String inputStringFromClient) {
-		if(!inputStringFromClient.contains("."))
+	public synchronized Card convertStringToCard(String inputStringFromClient) {
+		if (!inputStringFromClient.contains(":"))
 			return null;
-		String[] arrayOfCard = inputStringFromClient.split(".");
+		String[] arrayOfCard = inputStringFromClient.split(":");
 		switch (arrayOfCard[0]) {
 		case "11": {
 			return new Card(11, checkSymbol(arrayOfCard[1]));
@@ -215,7 +230,7 @@ public class ServerControl implements Runnable {
 		return null;
 	}
 
-	public CardSymbol checkSymbol(String symbol) {
+	public synchronized CardSymbol checkSymbol(String symbol) {
 		switch (symbol) {
 		case "1": {
 			return CardSymbol.spades;
