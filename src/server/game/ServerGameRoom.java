@@ -92,7 +92,9 @@ public class ServerGameRoom extends DGame implements Runnable {
 		for (int i = 0; i < listOfPlayers.size(); i++) {
 			if (listOfPlayers.get(i) instanceof HumanPlayer) {
 				HumanPlayer hp = (HumanPlayer) listOfPlayers.get(i);
-				new Thread(hp).start();
+				Thread humanThread = new Thread(hp);
+				humanThread.setPriority(Thread.NORM_PRIORITY+1);
+				humanThread.start();
 			}
 		}
 	}

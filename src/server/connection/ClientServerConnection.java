@@ -94,7 +94,7 @@ public class ClientServerConnection implements Runnable {
 						playerName = inputClient.readLine();
 					}
 					new Thread(new ServerControl(socketForConnection,
-							new HumanPlayer(playerName, this.socketForConnection))).start();
+							new HumanPlayer(playerName, this.socketForConnection,objectClientOutput))).start();
 					break;
 				}
 				case "newGameRoom": {
@@ -110,7 +110,9 @@ public class ClientServerConnection implements Runnable {
 							break mainLoop;
 						}
 					}
-					objectClientOutput.writeObject(new String("ok"));
+					objectClientOutput.writeUnshared(new String("ok"));
+					objectClientOutput.flush();
+					objectClientOutput.reset();
 					while (serverPassword == null) {
 						serverPassword = inputClient.readLine();
 					}
@@ -121,7 +123,7 @@ public class ClientServerConnection implements Runnable {
 																				// to
 																				// INT
 					new Thread(new ServerControl(socketForConnection, serverName, serverPassword, numberOfBotsTypeInt,
-							new HumanPlayer(playerName, this.socketForConnection))).start();
+							new HumanPlayer(playerName, this.socketForConnection,objectClientOutput))).start();
 					gameRoomRunning = true;
 					
 					//mozda reset
@@ -158,7 +160,7 @@ public class ClientServerConnection implements Runnable {
 						break mainLoop;
 					}
 					new Thread(new ServerControl(socketForConnection, serverName, serverPassword,
-							new HumanPlayer(playerName, this.socketForConnection))).start();
+							new HumanPlayer(playerName, this.socketForConnection,objectClientOutput))).start();
 					try {
 						this.wait();
 					} catch (InterruptedException e) {

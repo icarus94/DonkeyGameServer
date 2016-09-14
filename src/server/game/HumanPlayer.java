@@ -13,9 +13,10 @@ public class HumanPlayer extends Player implements Runnable {
 	private ObjectOutputStream objectClientOutput;
 	private ServerGameRoom pointerToGameRoom;
 
-	public HumanPlayer(String playerName, Socket socketConnection) {
+	public HumanPlayer(String playerName, Socket socketConnection, ObjectOutputStream obj) {
 		super(playerName, socketConnection);
 		this.socketForConnection = socketConnection;
+		this.objectClientOutput = obj;
 	}
 
 	public ServerGameRoom getPointerToGameRoom() {
@@ -42,18 +43,20 @@ public class HumanPlayer extends Player implements Runnable {
 
 	@Override
 	public void run() {
+		int counter = 0;
 		while (true) {
 			try {
 				
-				objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
+				//objectClientOutput = new ObjectOutputStream(socketForConnection.getOutputStream());
 				boolean alreadySendForThisRound = false;
+				
 				while (true) {
 					objectClientOutput.flush();
 					objectClientOutput.reset();
 					objectClientOutput.writeUnshared(pointerToGameRoom.getListOfPlayersTypePLAYER());
 					objectClientOutput.reset();
 				//	System.out.println("jbg" + this.getPlayerHandCards().size() + " b " + alreadySendForThisRound);
-					if (this.getPlayerHandCards().size() == 5) {
+					if (this.getPlayerHandCards().size() == 5 && !alreadySendForThisRound) {
 						objectClientOutput.flush();
 						objectClientOutput.reset();
 						
@@ -61,6 +64,7 @@ public class HumanPlayer extends Player implements Runnable {
 						Card d = new Card(this.getPlayerHandCards().getLast().getCardNumber(),
 								this.getPlayerHandCards().getLast().getSymbolOfCard());
 						objectClientOutput.writeUnshared(d);// last card
+						objectClientOutput.flush();
 						objectClientOutput.reset();
 						alreadySendForThisRound = true;
 						System.out.println("poslo Igracu" + d.getCardNumber() + " "
@@ -68,9 +72,10 @@ public class HumanPlayer extends Player implements Runnable {
 					}
 					if (this.getPlayerHandCards().size() == 4)
 						alreadySendForThisRound = false;
+					counter++;
 				}
 			} catch (IOException e) {
-				System.out.println("Human player:" + this.getPlayerName() + " has left the game");
+				System.out.println("Human player:" + this.getPlayerName() + " has left the game a poslo je"+counter);
 				// kod za paljenje prvog threada
 				Player.ispisSvega(pointerToGameRoom.getListOfPlayers());
 				return;
